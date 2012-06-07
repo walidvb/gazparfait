@@ -1,0 +1,185 @@
+//////////////////////////////////////////
+//					//
+// REPONSES - PROJET INFORMATIQUE II	//
+//					//
+//////////////////////////////////////////
+
+
+[Reponse P1.1]
+
+  Un vecteur en 3D possede 3 coordonnees, et
+   on doit avoir la possibilite de lire et modifier
+   ces coordonnees.
+
+   Nous avons hesite a incorporer la position du
+   vecteur dans l'espace dans la classe vecteur 3D, mais comme
+   tous ces vecteurs allaient etre lies a une particule, il semblait
+   plus logique de definir la position de cette particule dans sa classe,
+   puis d'avoir des vecteurs 3d de position, de vitesse 
+   et d'acceleration en tant qu'attributs de cette classe.
+
+   Nous avons donc construit une classe avec des methodes
+   publiques pour lire et modifier ces attributs, tandis que les
+   attributs eux-memes sont prives.
+
+   Nous avons une methode publique pour obtenir
+   la norme d'un vecteur, une methode pour normaliser le vecteur et en obtenir la direction.
+
+   Une posibilite serait de mettre tous les attributs de la classe
+   vecteur 3d en protege puis de creer une classe de calcul vectoriel
+   qui est amie (friend) de la classe vecteur 3d.
+   (edit: la surcharge d'operateurs est une meilleure solution).
+
+[Reponse P3.1]
+
+ Si on appelle cet unique constructeurs avec des valeurs par defaut
+   sans lui passer d'arguments, les arguments sont quand meme crees en memoire
+   puis initialises a leurs valeurs par defaut, puis encore une fois copies
+   dans les variables locales au constructeur. C'est a dire que chaque fois
+   qu'on appelle ce constructeur sans lui fournir des parametres, on perd du
+   temps et de la memoire. Il est donc plus efficace de creer deux
+   constructeurs separes, dont un ne prend pas d'arguments et initalise les
+   attributs de la classe a des valeurs par defaut, et l'autre qui prend
+   des arguments et initalise les attributs avec les valeurs passees en
+   parametres.
+   
+
+[Reponse P3.2]
+
+ a] Il n'y aurait aucune implication, car on pourrait convertir les coordonnees spheriques
+   en coordonnees cartesiennes avant de modifier les attributs de la classe, 
+   et vice-versa. Bien sur il y aurait une toute petite perte de precision...
+
+   b] Le probleme est que chacun de ces deux constructeurs prendrait trois
+   doubles comme arguments, et comme ces contructeurs auront forcement le
+   meme non (celui de la classe), on ne pourra pas savoir lequel l'utilisateur
+   veut utiliser quand il cree un objet de la classe en donnant trois doubles
+   comme parametres. Il existe cependant certains solutions, comme par exemple
+   le "named constructor idiom" (http://www.parashift.com/c++-faq-lite/ctors.html).    
+   
+[Reponse P3.3]
+
+on a transforme la methode compare en  methode == avec le prototype suivant:
+      bool operator==(CVector3D& v);
+et la methode affiche avec le prototype suivant:
+     friend ostream& operator<<(ostream& o, const CVector3D& v);
+Nous utilisons ces operators car ils collent parfaitement avec les operators definis pour les double, bool, etc...
+
+
+[Reponse P7.1]	
+
+nous avons prefere repondre a cette question a la fin du projet de maniere a avoir termine la classe CSystem. elle possede donc: 
+au niveau des attributs:
+	+une liste heterogene de CPart (pointeurs sur particules) presents dans le systeme
+	+un attribut enceinte e	
+	+un attribut de type hazard h( pour l appel des fonctions aleatoires )
+	+une temperature t
+	+un double epsilon representant l intervalle determinant si le choc a lieu
+	
+Dans la classe CSystem, nous appelons les fct des sous-classe ( pour draw et update), sauf pour CEnceinte,
+qui n'herite pas de CDrawable.
+			      
+
+[Reponse P7.2]
+
+   Le constructeur de copie prive et la methode operateur= prive sont 
+   introduits pour eviter qu'un utilisateur de la classe essaie de copier 
+   un systeme dans un autre.
+
+   Comme chaque classe en c++ possede un constructeur de copie et une 
+   methode operateur= implicite par defaut, nous devons excplicitement
+   implementer ces elements en prive pour prevenir toute tentative de copie.
+
+   La copie d'un objet systeme est indesirable puisque notre projet ne
+   comportera jamais plus qu'un systeme (logiquement) et qu'un systeme
+   a une grande chance de posseder des pointeurs sur des objets (ce qui
+   fait que la copie du systeme n'aura copie que les pointeurs mais pas
+   les objets eux-memes, sauf si on implemente soi-meme une methode de copie 
+   plus intelligente).
+   
+   [Reponse 9.1] 
+   
+   Dans les classes contenant des pointeurs, il faut faire attention ˆ cause des copies, en effet,
+   on a le choix entre faire des copies profondes ( en copiant non seulement le pointeur,
+   mais aussi la particule vers lequel il pointe. User et abuser des new! ) 
+   ou ne pas faire de copie du tout, ce qui a plutot ete notre choix. Le risque est en effet de 
+   detruire le systeme copie, ses particules avec. les pointeurs du nouveau systeme risqueraient
+   alors de ne plus pointer sur rien
+   
+   
+   [Reponse P10.1]
+   
+   la bonne faon, c'est de prototyper la methode dessine dans la classe la plus haute ( ici CDrawable ) 
+   en tant que virtuelle pure et de la definir specifiquement dans chacune des classes les plus basses ( ici CTri,
+   CDi, et CMono ), la resolution des liens se fera de faon dynamique. Dans notre projet, on ne dessine jamais de 
+   CDrawable, mais tout au plus un CSystem(qui appelle les draw de ses attributs). La resolution des liens n'est chez
+   nous donc pas dynamique.
+   
+   [Reponse P10.2]
+   
+   cela implique que la classe Particules ( CPart chez nous ) herite de CDrawable et que  CTri, CDi, et CMono heritent
+   de CPart. de plus comme les classes CDrawable et CPart comportent des methodes virtuelles pures donc elles sont
+   abstraites. Avec du recul, nous aurions pu l'implementer autrement( simplement sans utiliser de polymorphisme
+   dans la methode draw() ).
+      
+   [Reponse P10.3]
+   
+   CSystem herite egalement de CDrawable. a noter que la methode draw de CSystem dessine egalement une enceinte et par consequent
+   il n est pas necessaire pour CEnceinte d heriter de CDrawable. Ainsi il faut definir la virtual draw const = 0 de CDrawable
+   dans CSystem, pour que ce ne soit pas une classe abstraite.
+   
+   [Reponse P11.1]
+   
+   la methode de mise-a-jour du systeme  appelle les methiodes mise ajour de chaque particule, et agit sur elle selon si il y a un
+   choc, ou un depassement de l'enceinte.
+   Au depart, nous creions des particules avec des positions et des vitesses arbitraire, puis nous avons implementer une methode
+   (presente dans CHazard) qui permettait de tirer ces vecteurs aleatoirement. Nous creions donc des pointeurs sur particules, puis 
+   les ajoutions a notre liste de particules. Cette methode d'initialisation etait d'abord dans notre main, puis nous en avons fait
+   une methode de CSystem.
+     
+   [Reponse P11.2]
+   
+   la complexite de l algorythme est la suivante: por la premiere particule de la collection, on doit effectuer le test de choc n-1 fois, 
+   pour la deuxieme, n-2 fois et ainsi de suite et donc il y a en tout 1/2*O(n^2) calculs a faire
+   
+   [Reponse P12.1]
+   
+   ce code doit aller dans la methodes draw() de la classe Blob
+   
+   
+   
+   [Reponse P12.2]
+   
+   car l'on souhaite que la methode mon_interface.associe() prenne un pointeur sur un dessinable ( CDrawable chez nous )
+   Dans GLGUI, nous dessinons directement un systeme, et non pas un pointeur.
+   
+   [Reponse P12.3]
+   
+   nous avons mis l' attribut a_dessiner en private car toutes les fonctions globales que nous utilisons pour le GLUT
+   sont "friend" de la classe GUI et par consequent ont toutes acces aux attributs prives de cette classe.
+   
+   [Reponse P13.1]
+   
+   comme nous l avons expliquer dans les questions precedents, nous avons choisi d inclure un attribut CEnceinte 
+   dans CSystem et que la methode draw de CSystem dessine cette enceinte directement, sans faire appel a un
+   CEnceinte::draw(). Autrement il aurait fallu definir cette methode heritee et choisir de la dessiner dans
+   GLGUI
+   
+   [Reponse P16.1]
+   
+   Nous avons choisi d'implementer le mvt brownien de la maniere suivante:
+	Nous avons cree une classe COrbit qui possede entre autre un deque<CVector3D*>.
+	Chaque particule possede une orbite, un booleen decidant de la dessiner ou pas.
+	(en appelant COrbit::draw(CColor&)) L'argument CColor de COrbit::draw etait
+	indispensable pour chercher la couleur de la particule, c'est pourquoi il n'y
+	a pas d'heritage de CDrawable.
+
+   [Reponse P17.1]
+   
+   [Reponse P17.2]
+   
+   [Reponse P18.1]
+   
+   [Reponse P19.1]
+   
+   [Reponse P19.2]

@@ -1,0 +1,197 @@
+
+===================================Walid van Boetzelaer & Pierre Julien-Laferriere==================================
+
+
+Nous avons choisi d'adopter certains codes a respecter tout le long du projet, afin d'avoir qqchose d'homogene. CAD:
+les classes seront toujours nomme C-Class, pour le glut nous utiliserons GL-Class,
+chaque attribut a sa methode get/set. Ceci evite de devoir les coder quand on en aura besoin.
+Nous voulions d'abord commenter et coder en anglais, le langage universel, mais au fur et a mesure nos deux langues
+se sont melangees, et c'est pourquoi le language est un peu disparate.
+La plupart des probleme rencontres ont pu etre geres grace au debugger gdb.
+
+Voici maintenant la suite de notre journal:
+
+	
+	Semaine du 21 mars 2007
+	
+Implementation de CVector3D.
+Nous avons fait le choix de  la programmation modulaire des le debut, pour pouvoir le construire au fur et a mesure.
+CVector3Dtest fonctionne, tout s'est bien passé.
+
+	Semaine du 28 mars 2007
+	
+Les methodes affiche/compare sont desormais implemente par les  operator >>/== ceci est bcp plus pratique que d'appeler un fonction.
+Nous avons commence a nous renseigner quant aux documentations generees automatiquement. Apparement, doxygen a l'air pas mal. Nous
+allons commencer a implementer sa sytaxe des le debut, ca sera ca de moins a faire.
+
+	Semaine du 4 avril 2007
+	
+Implementation de la classe particule:	
+				methodes get et set...
+				Cette classe est pour l'instant tres basiques, mais nous lui implementons tous les attributs que nous pensons pouvoir utiliser plus tard
+				notemment: une masse, une position, une vitesse, des methodes updateposition et updatevelocity
+
+Enceinte: 
+	Vu la simplicite de cette classe( nous avons d'ailleurs hesite a en faire une struct, mais pour conserver l'aspect
+	d'encapsulation, nous en avons fait une classe.) Je ne pense pas devoir la modifier. Elle ne possede que les trois attributs Length, Height et Depth,
+	ainsi que des methodes get et set pour chacun de ces attributs.
+
+Systeme: 
+	Cette classe est celle qui va faire tourner toute la partie calcul de notre projet.
+	Nous avons decider d'implementer la methode update de la maniere suivante:
+	Nous appelons les methodes update des elements qui bougent. Le code est plus propre ainsi, a chacun ses methodes.
+	Elle a comme attribut une liste de CPart.
+
+	Semaine du 11 avril 2007
+	
+	
+	Semaine du 18 avril 2007
+
+CDrawable:
+	Dans la vue d'implementer le polymorphise, nous avons fait heriter CPart et CSystem de CDrawable, une classe abstraite ne contenant
+	qu'une methode draw. Il nous a donc fallu les definir vide, tant que nous ne savions pas comment les implementer.
+
+CMono, CDi, CTri:
+	En vue d'une heterogeinisation du systeme, nous avons creer trois sous-classe de CPart,  CMono, CDi et CTri, qui n'ont comme difference pour l'instant
+	que la masse(la methode draw reste vide dans CPart).
+
+Liste Heterogene:
+	Solution pour une liste heterogene -> vector< x* >, bien sur. Il faut maintenant creer un systeme.
+	Nous implementons donc une methode des simulation. system update la position de chaque particule, puis elle verifie la replace dans l'enceinte si besoin
+	est. Nous avons choisi le modele de chocs le plus simple, pour chaque particule on verifie avec toutes les particules suivantes dans la liste.
+	Nous avons donc une complexite de n(n-1)
+
+CColor: 
+	nous implementons vite fait CColor, dote de RGBA, et de get/set.
+	
+Il s'agit maintenant d'obtenir une simulation en mode texte: pour cela nous surchargeons l'operator<< de CSystem, et le printons apres chaque etape.
+Pour l'initialisation, nous definissons simplement 3 CPart, avec des valeurs arbitraires, et les ajoutons au systeme
+
+	Semaine du 25 avril 2007¨
+GLUT	
+	Adaptation de l'exemple3 du tutorial en vue de la creation de la classe GUI (P12)
+	Question: arguments du constructeur et methodes friends adequates?
+	Probleme avec la variable globale GUI*. utilisation de extern
+
+
+	Semaine du 2 et 9 mai 2007
+	revisions
+	
+	
+	Semaine du 16 mai 2007
+COrbit:
+	apres qques recherches sur le deque, nous implementons une classe COrbit qui stockera les positions d'une CPart. On verra si on lui ajoutera
+	des methodes plus tard. pour des raisons de pratique, nous avons implemente l'attribut maxPoints(taille max du deque) dans CSystem.
+	COrbit est mnt un attribut de CPart.
+	
+	recuperation de la camera de l annee derniere mais probleme d adapdation, on choisit de refaire le code de la camera beaucoup plus simple
+	
+GLGUI:
+	avait comme attribut un pointeur sur CDrawable, mais comme la seule chose que nous allons dessiner est un systeme( car son draw() appelle les
+	draw de chaque part, et dessine l'enceinte. Avait-on vraiment besoin de ce CDrawable? Qui plus est, nous devons surcharger la seule methode
+	de la classe parente(il faut la couleur de la particule comme argument). Nous aurions pu simplement implementer deux fois la methode draw, 
+	ce qui aurait evite ce .h en plus, etc...
+
+
+	Semaine du 23 mai 2007
+Pas encore de parseur
+
+Inline:
+	Nous avons essaye d' optimiser le projet en utilisant des inlines, d'abord sans savoir qu'il faut les definir ds le .cc.
+	Nous verrons plus tard si nous decidons d' effectuer ce changement.
+
+	Semaine du 30 mai 2007
+	
+CParser:
+	Debut de CParser. On va commencer par une approche en douceur, bien comprendre ce qu'il se passe.
+	Petit a petit, on code ;)!
+CHazard:
+	implementation d'une classe CHazard qui nous sert a appeler certaines fonctions du hasard(unif, gauss)
+	Apres reflexion, ces fonctions auraient pu etre code dans CDrawable, puisque chaque appel de ces fonction dans le projet
+	se fait depuis un CDrawable
+	
+Extensions: 
+	implementation de ce qui est appele "Dynamic Particules interaction" dans le code: il s'agit de methodes qui sont appelees en cours de
+	deroulement du programme. Elles auront, a terme, au moins des fonctions telles que:
+	dessiner ou enlever des particules de differents types, des orbites, clavier ET souris utilisables, taille de l enceinte modifiable, etc.
+	Ces fonctions sont implemente dans CSystem, car elle a l'acces le plus direct a sa liste de particules.
+	
+	05.06.2007:
+CPart:
+	Nous implementons aujourd'hui un constructeur de CPart qui prend comme argument les tailles d'une enceinte, une temperature et d'une masse.
+	Ce constructeur est appele a travers l'initialisation d'une sous classe. C'est tres utile pour l'initialisation d'un systeme!
+	la fct init(CSystem) etait implemente dans Simu.cc, sous notre main. Nous l'avons deplace dans systeme, qui peut mnt s'auto-
+	initialiser.
+	Ainsi, notre main est bcp plus propre.
+	
+WARNING:
+	Travaillant a la fois sur un laptop mac et les cosuns, les codes gluts sont en commentaire dans le code sur mac.
+	apres l'installation des librairies adequates, nous avons tente de sortir du commentaire la fct draw de COrbit.
+	Un make plus tard, plus rien ne compile. Nous faisons les undo necessaires, rien n'y fait!
+	Apres plusieurs jours de prise de tete la-dessus, tete des assistants compris, sur le point d'abondonner, nous changeons (en passant)
+	une methode de COrbit en ajoutant un const. Miracle! Tout remarche!
+	
+	
+	
+	a partir du 6 juin
+	
+CParser:
+	Nous passons des heures sur le parseur, principalement a cause d'erreurs stupides comme une mauvaise definition des tags.
+	Le codage de cette classe est relativement facile, seulement son fonctionnement est hautement aleatoire, car contrairement a une
+	grande partie des autres classes, c'est dans les erreurs de lecture que la difficulte reside, et non pas dans la compilation.
+	Le seul moyen pour savoir ce qui est lu est de mettre des cout un peu partout dans le code, et d'y passer la nuit ;).
+	Lentement, mais surement!
+	
+GLCamera:
+	Nous avons decouvert l'astuce glTranslated, qui, implemente au bon endroit, permet de dessiner tout ce qu'on dessine centre en
+	zero, ce qui a implique les reflexions suivantes
+	
+Re-Modelisation: 
+	notre camera, telle que nous l'avions concu sur les conseils de nos camarade, avait trois attributs position, visee, et direction,
+	ce qui permettait de bouger librement dans l'espace, ne nous convient pas. Nous n'avons pas besoin de bouger librement, nous voulons viser 
+	en permanence le centre de l'enceinte! Ainsi nous avons repense completement notre camera. A vrai dire, si ce n'etait pas pour garder un
+	code propre et utiliser le polymorphisme, nous n'aurions pas besoin de la camera. d'ailleurs, si nous avons le temps, il est possible
+	que nous l'enlevions de notre projet.
+	Dans notre nouveau mode de pensee, nous allons viser en permanence le centre de l'enceinte, la camera ne bougera que d'avant en arriere, et 
+	pour ce qui est de tourner, nous ferons tourner l'affichage du systeme. Ceci est beaucoup plus pratique pour ce qui est de tourner autour 
+	du centre, et corriger le vecteur direction par visee. Ainsi, Camera n'a que 3 attributs propres a elle: position, angle1 et 2, et un pas 
+	de deplacement. Ces atributs ne sont appele qu'une fois chacun, dans la fonction draw() de GLGUI.
+	
+mise a jour du journal, de doxygen, reponses aux questions mises au propre, on "nettoie" le projet en l aerant ou en enlevant certains
+	commentaires inutiles ou en en rajoutant d autres. Optimisations par parfois la redefinition de fonction, parfois en les implementant autrement.
+	Nous avons aussi utilise le profiling pour connaitre les endroits ou nous perdions du temps. Nous avons vu que 19% du temps est passe a creer des
+	vecteurs et a en soustraire, cela probablement lors des chocs. En revisant cette methode, nous avons pu optimiser un peu notre rendement.
+	
+Conception du programme:
+Re-Modelisation: 
+	Jusqu'a mnt, CMono, CDi, CTri ne se differenciaient que par la masse passee en argument dans le constructeur de CPart.
+	Nous avons decide de rendre static tous les attributs possibles:
+		CColor, mass, type.
+	Ceci a implique la virtualisation de leur methodes get&set dans CPart, et bcp de changement quant a a la syntaxe de leur appel dans
+	CSystem, et parfois dans GLGUI
+	
+Boucles:
+	Nous avons change les tetes de lecture int en iterators, pour optimiser la vitesse de lecture des listes parcourues (principalement
+	dans CSystem). A ceci s'ajoute evidemment les changements de sytanxe induit.
+
+CParser:
+	Ajout d' un sauvegarde d'une camera dans le xml. Ceci nous a pose enormement de problemes
+	
+	16 juin 19h30 on jette le parseur a la poubelle...
+	        19h34 on retrouve le parseur dans un fichier zip...
+			Apres une bonne nuit blanche, qques fausse manips, et un vidage de corbeille inopine, nous perdons tout le travail de la nuit.
+			Il faut donc recoder la Camera, l'implementation d'une Camera dans les parsers, tout ca les yeux a moitie fermes.
+			Apres moultes essais, nous n'y arrivons pas. nous gardons donc le premier modele, qui ne chargeait qu'un systeme, pas de camera.
+			Nous voudrions encore que la config par default charge depuis un fichier, mais nous n'en avons pas eu le temps.
+			Dommage, si pres du but.
+			
+	17 juin 2007
+		Doxygen ne lit pas toutes les fonctions decrites, ce qui casse le coup de la documentation.
+
+Nous voici arrive a la fin du projet. Il reste encore tant de potentiel, mais nous avons assez donne. Nous revoyons notre journal, completons
+les reponses aux questions, et revons a ajouter d'autres extensions. Nous avons presque termine de coder le 2eme modele de collision, mais 
+il est maintenant trop tard. 
+
+En regardant de loin, notre niveau et notre interet pour l'informatique a enormement augmente. Cependant, si ce projet etait a refaire, 
+nous ne ferions pas un heritage de CDrawable, car cet aspect du polymorphise n'a ete que tres peu exploite dans notre code. De meme pour la camera.
+autant ajouter les attributs positions, angle1 et angle2.
